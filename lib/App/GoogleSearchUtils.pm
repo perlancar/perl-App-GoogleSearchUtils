@@ -32,6 +32,36 @@ $SPEC{google_search} = {
             default => 100,
         },
     },
+    examples => [
+        {
+            summary => 'Open a single query, show 100 results',
+            src => '[[prog]] "a query" -n 100',
+            src_plang => 'bash',
+            test => 0,
+            'x.doc.show_result' => 0,
+        },
+        {
+            summary => 'Open several queries',
+            src => '[[prog]] "query one" query2 "query number three"',
+            src_plang => 'bash',
+            test => 0,
+            'x.doc.show_result' => 0,
+        },
+        {
+            summary => 'Use a custom browser',
+            src => 'BROWSER=lynx [[prog]] "a query"',
+            src_plang => 'bash',
+            test => 0,
+            'x.doc.show_result' => 0,
+        },
+        {
+            summary => 'Use with firefox-container',
+            src => 'BROWSER="firefox-container mycontainer" [[prog]] "query one" query2',
+            src_plang => 'bash',
+            test => 0,
+            'x.doc.show_result' => 0,
+        },
+    ],
 };
 sub google_search {
     require Browser::Open;

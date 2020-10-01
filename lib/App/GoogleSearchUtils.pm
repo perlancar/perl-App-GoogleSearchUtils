@@ -26,6 +26,14 @@ $SPEC{google_search} = {
             pos => 0,
             slurpy => 1,
         },
+        prepend => {
+            summary => 'String to add at the beginning of each query',
+            schema => 'str*',
+        },
+        append => {
+            summary => 'String to add at the end of each query',
+            schema => 'str*',
+        },
         num => {
             summary => 'Number of results per page',
             schema => 'posint*',
@@ -73,8 +81,14 @@ sub google_search {
 
     my $envres = envresmulti();
     my $i = -1;
-    for my $query (@{ $args{queries} }) {
+    for my $query0 (@{ $args{queries} }) {
         $i++;
+        my $query = join(
+            "",
+            defined($args{prepend}) ? $args{prepend} : "",
+            $query0,
+            defined($args{append}) ? $args{append} : "",
+        );
         my $url = "https://www.google.com/search?num=$num&q=".
             URI::Escape::uri_escape($query);
         my $res = Browser::Open::open_browser($url);

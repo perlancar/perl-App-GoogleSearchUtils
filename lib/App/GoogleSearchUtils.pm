@@ -26,6 +26,10 @@ $SPEC{google_search} = {
             pos => 0,
             slurpy => 1,
         },
+        delay => {
+            summary => 'Delay between opening each query',
+            schema => 'duration*',
+        },
         prepend => {
             summary => 'String to add at the beginning of each query',
             schema => 'str*',
@@ -83,6 +87,10 @@ sub google_search {
     my $i = -1;
     for my $query0 (@{ $args{queries} }) {
         $i++;
+        if ($i > 0 && $args{delay}) {
+            log_trace "Sleeping %s second(s) ...", $args{delay};
+            sleep $args{delay};
+        }
         my $query = join(
             "",
             defined($args{prepend}) ? $args{prepend} : "",

@@ -53,6 +53,14 @@ $SPEC{google_search} = {
                 print_html_link => {is_flag=>1, summary=>'Alias for --action=print_html_link', code=>sub {$_[0]{action}='print_html_link'}},
                 print_org_link  => {is_flag=>1, summary=>'Alias for --action=print_org_link' , code=>sub {$_[0]{action}='print_org_link' }},
             },
+            description => <<'_',
+
+Instead of opening the queries in browser, you can also do other action instead.
+For example, `print_url` will print the search URL. `print_html_link` will print
+the HTML link (the <a> tag). And `print_org_link` will print the Org-mode link,
+e.g. `[[url...][query]]`.
+
+_
         },
         type => {
             summary => 'Search type',

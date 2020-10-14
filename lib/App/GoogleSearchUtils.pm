@@ -106,7 +106,14 @@ _
         },
         {
             summary => 'Show image search URLs instead of opening them in browser',
-            src => '[[prog]] --image --print "query one" query2',
+            src => '[[prog]] --image --print-url "query one" query2',
+            src_plang => 'bash',
+            test => 0,
+            'x.doc.show_result' => 0,
+        },
+        {
+            summary => 'Print map search URLs as Org links',
+            src => '[[prog]] --map --print-org-link "jakarta selatan" "kebun raya bogor"',
             src_plang => 'bash',
             test => 0,
             'x.doc.show_result' => 0,

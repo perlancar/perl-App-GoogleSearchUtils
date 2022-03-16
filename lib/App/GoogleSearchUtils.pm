@@ -1,16 +1,16 @@
 package App::GoogleSearchUtils;
 
-# AUTHORITY
-# DATE
-# DIST
-# VERSION
-
 use 5.010001;
 use strict;
 use warnings;
 use Log::ger;
 
 use Perinci::Object 'envresmulti';
+
+# AUTHORITY
+# DATE
+# DIST
+# VERSION
 
 our %SPEC;
 
@@ -42,6 +42,19 @@ $SPEC{google_search} = {
             summary => 'Number of results per page',
             schema => 'posint*',
             default => 100,
+        },
+        time_start => {
+            schema => ['date*', 'x.perl.coerce_rules' => ['From_str::natural'], 'x.perl.coerce_to'=>'DateTime'],
+            tags => ['category:time-period-criteria'],
+        },
+        time_end => {
+            schema => ['date*', 'x.perl.coerce_rules' => ['From_str::natural'], 'x.perl.coerce_to'=>'DateTime'],
+            tags => ['category:time-period-criteria'],
+        },
+        time_past => {
+            summary => 'Limit time period to the past hour/24hour/week/month/year',
+            schema => ['str*', in=>[qw/hour 24hour day week month year/]],
+            tags => ['category:time-period-criteria'],
         },
         action => {
             summary => 'What to do with the URLs',
@@ -75,6 +88,10 @@ _
             },
         },
     },
+    args_rels => {
+        choose_all => [qw/time_start time_end/],
+        choose_one => [qw/time_start time_past/],
+    },
     examples => [
         {
             summary => 'Open a single query, show 100 results',
@@ -84,8 +101,8 @@ _
             'x.doc.show_result' => 0,
         },
         {
-            summary => 'Open several queries',
-            src => '[[prog]] "query one" query2 "query number three"',
+            summary => 'Open several queries, limit time period all search to the past month',
+            src => '[[prog]] "query one" query2 "query number three" --time-past month',
             src_plang => 'bash',
             test => 0,
             'x.doc.show_result' => 0,
@@ -146,16 +163,45 @@ sub google_search {
             defined($args{append}) ? $args{append} : "",
         );
         my $query_esc = URI::Escape::uri_escape($query);
+
+        my $time_param = '';
+        if (my $p = $args{time_past}) {
+            if ($p eq 'h' || $p eq 'hour') {
+                $time_param = 'tbs=qdr:h';
+            } elsif ($p eq '24hour' || $p eq 'day') {
+                $time_param = 'tbs=qdr:d';
+            } elsif ($p eq 'w' || $p eq 'week') {
+                $time_param = 'tbs=qdr:w';
+            } elsif ($p eq 'm' || $p eq 'month') {
+                $time_param = 'tbs=qdr:m';
+            } elsif ($p eq 'y' || $p eq 'year') {
+                $time_param = 'tbs=qdr:y';
+            } else {
+                return [400, "Invalid time_past value '$p'"];
+            }
+        } elsif (my ($t1, $t2) = ($args{time_start}, $args{time_end})) {
+            $time_param = "tbs=".URI::Escape::uri_escape(
+                "cdr:1,cd_min:".
+                ($args{time_start}->strftime("%m/%d/%Y")).
+                ",cd_max:".($args{time_end}->strftime("%m/%d/%Y"))
+            );
+        }
+
         my $url;
         if ($type eq 'web') {
-            $url = "https://www.google.com/search?num=$num&q=$query_esc";
+            $url = "https://www.google.com/search?num=$num&q=$query_esc" .
+                ($time_param ? "&$time_param" : "");
         } elsif ($type eq 'image') {
-            $url = "https://www.google.com/search?num=$num&q=$query_esc&tbm=isch";
+            $url = "https://www.google.com/search?num=$num&q=$query_esc&tbm=isch" .
+                ($time_param ? "&$time_param" : "");
         } elsif ($type eq 'video') {
-            $url = "https://www.google.com/search?num=$num&q=$query_esc&tbm=isch";
+            $url = "https://www.google.com/search?num=$num&q=$query_esc&tbm=isch" .
+                ($time_param ? "&$time_param" : "");
         } elsif ($type eq 'news') {
-            $url = "https://www.google.com/search?num=$num&q=$query_esc&tbm=nws";
+            $url = "https://www.google.com/search?num=$num&q=$query_esc&tbm=nws" .
+                ($time_param ? "&$time_param" : "");
         } elsif ($type eq 'map') {
+            return [409, "Can't specify time period for map search"];
             $url = "https://www.google.com/maps/search/$query_esc/";
         } else {
             return [400, "Unknown type '$type'"];

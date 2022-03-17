@@ -136,6 +136,10 @@ _
             'x.doc.show_result' => 0,
         },
     ],
+    links => [
+        {url=>'prog:firefox-container'},
+        {url=>'pm:App::FirefoxMultiAccountContainersUtils'},
+    ],
 };
 sub google_search {
     require Browser::Open;

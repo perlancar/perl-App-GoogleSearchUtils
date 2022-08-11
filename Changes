@@ -1,3 +1,8 @@
+0.010   2022-08-11  Released-By: PERLANCAR; Urgency: medium
+
+        - [cli google-search] Add option: --queries-from.
+
+
 0.009   2022-08-11  Released-By: PERLANCAR; Urgency: low
 
         - No functional changes.

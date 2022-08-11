@@ -183,7 +183,8 @@ sub google_search {
             } else {
                 return [400, "Invalid time_past value '$p'"];
             }
-        } elsif (my ($t1, $t2) = ($args{time_start}, $args{time_end})) {
+        } elsif ($args{time_start} && $args{time_end}) {
+            my ($t1, $t2) = ($args{time_start}, $args{time_end});
             $time_param = "tbs=".URI::Escape::uri_escape(
                 "cdr:1,cd_min:".
                 ($args{time_start}->strftime("%m/%d/%Y")).

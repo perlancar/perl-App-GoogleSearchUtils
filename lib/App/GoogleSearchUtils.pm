@@ -17,6 +17,14 @@ our %SPEC;
 $SPEC{google_search} = {
     v => 1.1,
     summary => 'Open google search page in browser',
+    description => <<'_',
+
+This utility can save you time when you want to open multiple queries (with
+added common prefix/suffix words) or specify some options like time limit. It
+will formulate the search URL(s) then open them for you in browser. You can also
+specify to print out the URLs instead.
+
+_
     args => {
         queries => {
             'x.name.is_plural' => 1,

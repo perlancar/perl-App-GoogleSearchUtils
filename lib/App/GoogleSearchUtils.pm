@@ -146,6 +146,20 @@ _
             test => 0,
             'x.doc.show_result' => 0,
         },
+        {
+            summary => 'Prepend prefix words to each query',
+            src => '[[prog]] --prepend "imdb " "carrie" "hocus pocus" "raya"',
+            src_plang => 'bash',
+            test => 0,
+            'x.doc.show_result' => 0,
+        },
+        {
+            summary => 'Append suffix words to each query',
+            src => '[[prog]] --append " net worth" "lewis capaldi" "beyonce" "lee mack" "mariah carey"',
+            src_plang => 'bash',
+            test => 0,
+            'x.doc.show_result' => 0,
+        },
     ],
     links => [
         {url=>'prog:firefox-container'},

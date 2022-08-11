@@ -1,3 +1,9 @@
+0.011   2022-08-11  Released-By: PERLANCAR; Urgency: medium
+
+        - Add actions: save_html, print_result_link,
+          print_result_html_link, print_result_org_link.
+
+
 0.010   2022-08-11  Released-By: PERLANCAR; Urgency: medium
 
         - [cli google-search] Add option: --queries-from.

@@ -24,6 +24,9 @@ added common prefix/suffix words) or specify some options like time limit. It
 will formulate the search URL(s) then open them for you in browser. You can also
 specify to print out the URLs instead.
 
+Aside from standard web search, you can also generate/open other searches like
+image, video, news, or map.
+
 _
     args => {
         queries => {

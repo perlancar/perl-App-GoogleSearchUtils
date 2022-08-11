@@ -14,6 +14,18 @@ use Perinci::Object 'envresmulti';
 
 our %SPEC;
 
+sub _fmt_html_link {
+    my ($url, $query) = @_;
+    require HTML::Entities;
+    my $query_htmlesc = HTML::Entities::encode_entities($query // "(query)");
+    qq(<a href="$url">$query_htmlesc<</a>);
+}
+
+sub _fmt_org_link {
+    my ($url, $query) = @_;
+    qq([[$url][$query]]);
+}
+
 $SPEC{google_search} = {
     v => 1.1,
     summary => 'Open google search page in browser',
@@ -72,20 +84,53 @@ _
         },
         action => {
             summary => 'What to do with the URLs',
-            schema => ['str*', in=>[qw/open_url print_url print_html_link print_org_link/]],
+            schema => ['str*', in=>[qw/
+                                          open_url
+                                          print_url print_html_link print_org_link
+                                          save_html
+                                          print_result_link
+                                          print_result_html_link
+                                          print_result_org_link
+                                      /]],
             default => 'open_url',
             cmdline_aliases => {
-                open_url        => {is_flag=>1, summary=>'Alias for --action=open_url'       , code=>sub {$_[0]{action}='open_url'       }},
-                print_url       => {is_flag=>1, summary=>'Alias for --action=print_url'      , code=>sub {$_[0]{action}='print_url'      }},
-                print_html_link => {is_flag=>1, summary=>'Alias for --action=print_html_link', code=>sub {$_[0]{action}='print_html_link'}},
-                print_org_link  => {is_flag=>1, summary=>'Alias for --action=print_org_link' , code=>sub {$_[0]{action}='print_org_link' }},
+                open_url               => {is_flag=>1, summary=>'Alias for --action=open_url'       , code=>sub {$_[0]{action}='open_url'       }},
+                print_url              => {is_flag=>1, summary=>'Alias for --action=print_url'      , code=>sub {$_[0]{action}='print_url'      }},
+                print_html_link        => {is_flag=>1, summary=>'Alias for --action=print_html_link', code=>sub {$_[0]{action}='print_html_link'}},
+                print_org_link         => {is_flag=>1, summary=>'Alias for --action=print_org_link' , code=>sub {$_[0]{action}='print_org_link' }},
+                save_html              => {is_flag=>1, summary=>'Alias for --action=save_html'      , code=>sub {$_[0]{action}='save_html'      }},
+                print_result_link      => {is_flag=>1, summary=>'Alias for --action=extract_links'  , code=>sub {$_[0]{action}='print_result_link'      }},
+                print_result_html_link => {is_flag=>1, summary=>'Alias for --action=extract_links'  , code=>sub {$_[0]{action}='print_result_html_link' }},
+                print_result_org_link  => {is_flag=>1, summary=>'Alias for --action=extract_links'  , code=>sub {$_[0]{action}='print_result_org_link'  }},
             },
             description => <<'_',
 
-Instead of opening the queries in browser, you can also do other action instead.
-For example, `print_url` will print the search URL. `print_html_link` will print
-the HTML link (the <a> tag). And `print_org_link` will print the Org-mode link,
-e.g. `[[url...][query]]`.
+Instead of opening the queries in browser (`open_url`), you can also do other
+action instead.
+
+**Printing search URLs**: `print_url` will print the search URL.
+`print_html_link` will print the HTML link (the <a> tag). And `print_org_link`
+will print the Org-mode link, e.g. `[[url...][query]]`.
+
+**Saving search result HTMLs**: `save_html` will first visit each search URL
+(currently using <pm:Firefox::Marionette>) then save each result page to a file
+named `<num>-<query>.html` in the current directory. Existing files will not be
+overwritten; the utility will save to `*.html.1`, `*.html.2` and so on instead.
+
+**Extracting search result links**: `print_result_link` will first will first
+visit each search URL (currently using <pm:Firefox::Marionette>) then extract
+result links and print them. `print_result_html_link` and
+`print_result_org_link` are similar but will instead format each link as HTML
+and Org link, respectively.
+
+Currently the `print_result_*link` actions are not very useful because result
+HTML page is now obfuscated by Google. Thus we can only extract all links in
+each page instead of selecting (via DOM) only the actual search result entry
+links, etc.
+
+If you want to filter the links further by domain, path, etc. you can use
+<prog:grep-url>.
+
 
 _
         },
@@ -174,6 +219,30 @@ _
         {
             summary => 'Append suffix words to each query',
             src => '[[prog]] --append " net worth" "lewis capaldi" "beyonce" "lee mack" "mariah carey"',
+            src_plang => 'bash',
+            test => 0,
+            'x.doc.show_result' => 0,
+        },
+        {
+            summary => 'Visit the search URL for each query using Firefox::Marionette then extract and print the links',
+            description => <<'_',
+
+Currently not very useful because result HTML page is now obfuscated by Google
+so we can just extract all links in each page instead of selecting (via DOM)
+only the result links, etc.
+
+If you want to filter the links further by domain, path, etc. you can use
+<prog:grep-url>.
+
+_
+            src => '[[prog]] "lee mack" --print-result-link',
+            src_plang => 'bash',
+            test => 0,
+            'x.doc.show_result' => 0,
+        },
+        {
+            summary => 'Get the IMDB URL for Lee Mack',
+            src => '[[prog]] "lee mack imdb" --print-result-link | grep-url --host-contains imdb.com | head -n1',
             src_plang => 'bash',
             test => 0,
             'x.doc.show_result' => 0,
@@ -273,11 +342,43 @@ sub google_search {
         } elsif ($action eq 'print_url') {
             push @rows, $url;
         } elsif ($action eq 'print_html_link') {
-            require HTML::Entities;
-            my $query_htmlesc = HTML::Entities::encode_entities($query);
-            push @rows, qq(<a href="$url">$query_htmlesc<</a>);
+            push @rows, _fmt_html_link($url, $query);
         } elsif ($action eq 'print_org_link') {
-            push @rows, qq([[$url][$query]]);
+            push @rows, _fmt_org_link($url, $query);
+        } elsif ($action =~ /\A(save_html|(print_result_(|html_|org_)link))\z/) {
+            state $ff1 = do {
+                require Firefox::Marionette;
+                log_trace "Instantiating Firefox::Marionette instance ...";
+                Firefox::Marionette->new;
+            };
+            log_trace "Retrieving URL $url ...";
+            my $ff2 = $ff1->go($url);
+            if ($action eq 'save_html') {
+                require File::Slurper;
+                (my $query_save = $query) =~ s/[^A-Za-z0-9_-]+/_/g;
+                my $filename0 = sprintf "%d-%s.%s.html", $i+1, $query_save, $type;
+                my $filename;
+                my $j = -1;
+                while (1) {
+                    $j++;
+                    $filename = $filename0 . ($j ? ".$j" : "");
+                    last unless -f $filename;
+                }
+                log_trace "Saving query[%d] result to %s ...", $i, $filename;
+                File::Slurper::write_text($filename, $ff2->html);
+            } else {
+                # extract links first
+                my @links = $ff2->links;
+                for my $link (@links) {
+                    if ($action =~ /html/) {
+                        push @rows, _fmt_html_link($link->url_abs . "", $link->text);
+                    } elsif ($action =~ /html/) {
+                        push @rows, _fmt_org_link($link->url_abs . "", $link->text);
+                    } else {
+                        push @rows, $link->url_abs . "";
+                    }
+                }
+            }
         } else {
             return [400, "Unknown action '$action'"];
         }

@@ -32,10 +32,13 @@ _
         queries => {
             'x.name.is_plural' => 1,
             'x.name.singular' => 'query',
-            schema => ['array*', of=>'str*'],
-            req => 1,
+            schema => ['array*', of=>'str*', min_len=>1],
             pos => 0,
             slurpy => 1,
+        },
+        queries_from => {
+            summary => 'Supply queries from lines of text file (specify "-" for stdin)',
+            schema => 'filename*',
         },
         delay => {
             summary => 'Delay between opening each query',
@@ -102,6 +105,7 @@ _
     args_rels => {
         choose_all => [qw/time_start time_end/],
         choose_one => [qw/time_start time_past/],
+        req_one => [qw/queries queries_from/],
     },
     examples => [
         {
@@ -114,6 +118,20 @@ _
         {
             summary => 'Open several queries, limit time period all search to the past month',
             src => '[[prog]] "query one" query2 "query number three" --time-past month',
+            src_plang => 'bash',
+            test => 0,
+            'x.doc.show_result' => 0,
+        },
+        {
+            summary => 'Open queries from each line of file, add delay 3s after each query (e.g. to avoid getting rate-limited by Google)',
+            src => '[[prog]] --queries-from phrases.txt --delay 3s',
+            src_plang => 'bash',
+            test => 0,
+            'x.doc.show_result' => 0,
+        },
+        {
+            summary => 'Open queries from each line of stdin',
+            src => 'prog-that-produces-lines-of-phrases | [[prog]] --queries-from -',
             src_plang => 'bash',
             test => 0,
             'x.doc.show_result' => 0,
@@ -176,10 +194,21 @@ sub google_search {
     my $action = $args{action} // 'web';
     my $type = $args{type} // 'web';
 
+    my @queries;
+    if (defined $args{queries_from}) {
+        require File::Slurper::Dash;
+        my $content = File::Slurper::Dash::read_text($args{queries_from});
+        @queries = map { chomp(my $line = $_); $line } split /^/m, $content;
+    } elsif ($args{queries} && @{ $args{queries} }) {
+        @queries = @{ $args{queries} };
+    } else {
+        return [400, "Please specify either queries or queries_from"];
+    }
+
     my @rows;
     my $envres = envresmulti();
     my $i = -1;
-    for my $query0 (@{ $args{queries} }) {
+    for my $query0 (@queries) {
         $i++;
         if ($i > 0 && $args{delay}) {
             log_trace "Sleeping %s second(s) ...", $args{delay};

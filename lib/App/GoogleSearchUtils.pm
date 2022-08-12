@@ -329,7 +329,7 @@ sub google_search {
             $url = "https://www.google.com/search?num=$num&q=$query_esc&tbm=nws" .
                 ($time_param ? "&$time_param" : "");
         } elsif ($type eq 'map') {
-            return [409, "Can't specify time period for map search"];
+            return [409, "Can't specify time period for map search"] if length $time_param;
             $url = "https://www.google.com/maps/search/$query_esc/";
         } else {
             return [400, "Unknown type '$type'"];

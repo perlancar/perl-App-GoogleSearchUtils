@@ -1,3 +1,9 @@
+0.012   2022-08-12  Released-By: PERLANCAR; Urgency: medium
+
+        - [cli google-search][bugfix] Fix logic bug when checking time
+          period for type=map.
+
+
 0.011   2022-08-11  Released-By: PERLANCAR; Urgency: medium
 
         - Add actions: save_html, print_result_link,

@@ -55,6 +55,26 @@ _
         delay => {
             summary => 'Delay between opening each query',
             schema => 'duration*',
+            description => <<'_',
+
+As an alternative to the `--delay` option, you can also use `--min-delay` and
+`--max-delay` to set a random delay between a minimum and maximum value.
+
+_
+        },
+        min_delay => {
+            summary => 'Delay between opening each query',
+            schema => 'duration*',
+            description => <<'_',
+
+As an alternative to the `--mindelay` and `--max-delay` options, you can also
+use `--delay` to set a constant delay between requests.
+
+_
+        },
+        max_delay => {
+            summary => 'Delay between opening each query',
+            schema => 'duration*',
         },
         prepend => {
             summary => 'String to add at the beginning of each query',
@@ -148,8 +168,14 @@ _
         },
     },
     args_rels => {
-        choose_all => [qw/time_start time_end/],
-        choose_one => [qw/time_start time_past/],
+        'choose_all&' => [
+            [qw/time_start time_end/],
+            [qw/min_delay max_delay/],
+        ],
+        'choose_one&' => [
+            [qw/delay min_delay/],
+            [qw/time_start time_past/],
+        ],
         req_one => [qw/queries queries_from/],
     },
     examples => [
@@ -279,9 +305,17 @@ sub google_search {
     my $i = -1;
     for my $query0 (@queries) {
         $i++;
-        if ($i > 0 && $args{delay}) {
-            log_trace "Sleeping %s second(s) ...", $args{delay};
-            sleep $args{delay};
+        if ($i > 0) {
+            if ($args{delay}) {
+                log_trace "Sleeping %s second(s) ...", $args{delay};
+                sleep $args{delay};
+            } elsif ($args{min_delay} && $args{max_delay}) {
+                my $delay = $args{min_delay} +
+                    int(rand($args{max_delay} - $args{min_delay} + 1));
+                log_trace "Sleeping between %s and %s second(s): %s second(s) ...",
+                    $args{min_delay}, $args{max_delay}, $delay;
+                sleep $delay;
+            }
         }
         my $query = join(
             "",

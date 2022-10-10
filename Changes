@@ -1,3 +1,11 @@
+0.014   2022-10-10  Released-By: PERLANCAR; Urgency: low
+
+        - No functional changes.
+
+        - [doc] Mention App::WebSearchUtils, App::DDGSearchUtils,
+          App::BraveSearchUtils, App::BingSearchUtils.
+
+
 0.013   2022-09-15  Released-By: PERLANCAR; Urgency: medium
 
         - [cli google-search] Add options --min-delay & --max-delay as

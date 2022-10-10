@@ -434,7 +434,7 @@ This distribution provides the following utilities:
 # INSERT_EXECS_LIST
 
 
-=head1 SEE ALSO
+=head1 prepend:SEE ALSO
 
 L<App::WebSearchUtils>, L<App::DDGSearchUtils>, L<App::BraveSearchUtils>,
 L<App::BingSearchUtils> - I'm sick of getting CAPTCHA's with Google (how many

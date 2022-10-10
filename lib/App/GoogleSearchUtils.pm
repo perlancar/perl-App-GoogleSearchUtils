@@ -432,3 +432,11 @@ sub google_search {
 This distribution provides the following utilities:
 
 # INSERT_EXECS_LIST
+
+
+=head1 SEE ALSO
+
+L<App::DDGSearchUtils>, L<App::BraveSearchUtils>, L<App::BingSearchUtils> - I'm
+sick of getting CAPTCHA's with Google (how many times in a few minutes do I have
+to prove that I'm human?), so lately been switching to other search engines when
+I have to do many searches.

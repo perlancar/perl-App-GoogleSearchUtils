@@ -1,3 +1,10 @@
+0.016   2022-10-21  Released-By: PERLANCAR; Urgency: low
+
+        - No functional changes.
+
+        - Mark the main module's Abstract as Deprecated also.
+
+
 0.015   2022-10-21  Released-By: PERLANCAR; Urgency: medium
 
         - No functional changes.

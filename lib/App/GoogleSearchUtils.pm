@@ -31,9 +31,6 @@ $SPEC{google_search} = {
     summary => '(DEPRECATED) Open google search page in browser',
     description => <<'_',
 
-*DEPRECATION NOTICE*: Deprecated in favor of <prog:web-search> from
-<pm:App::WebSearchUtils>.
-
 This utility can save you time when you want to open multiple queries (with
 added common prefix/suffix words) or specify some options like time limit. It
 will formulate the search URL(s) then open them for you in browser. You can also
@@ -435,6 +432,12 @@ sub google_search {
 This distribution provides the following utilities:
 
 # INSERT_EXECS_LIST
+
+
+=head1 DESCRIPTION
+
+*DEPRECATION NOTICE*: Deprecated in favor of L<App::WebSearchUtils> and
+ L<web-search>.
 
 
 =head1 prepend:SEE ALSO

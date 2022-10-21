@@ -28,8 +28,11 @@ sub _fmt_org_link {
 
 $SPEC{google_search} = {
     v => 1.1,
-    summary => 'Open google search page in browser',
+    summary => '(DEPRECATED) Open google search page in browser',
     description => <<'_',
+
+*DEPRECATION NOTICE*: Deprecated in favor of <prog:web-search> from
+<pm:App::WebSearchUtils>.
 
 This utility can save you time when you want to open multiple queries (with
 added common prefix/suffix words) or specify some options like time limit. It

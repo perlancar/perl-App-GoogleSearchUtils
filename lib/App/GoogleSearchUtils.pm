@@ -428,7 +428,7 @@ sub google_search {
 }
 
 1;
-#ABSTRACT: CLI utilites related to google searching
+#ABSTRACT: (DEPRECATED) CLI utilites related to google searching
 
 =head1 SYNOPSIS
 
